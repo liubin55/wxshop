@@ -54,6 +54,20 @@ class Wechat
        return $data;
     }
     /*
+     * 递归查数据
+     */
+    static public function getMenu($menu,$pid,$level=0){
+        static $arr=[];
+        foreach($menu as $k=>$v){
+            if($v['pid']==$pid){
+                $v['level']=$level;
+                $arr[]=$v;
+                self::getMenu($menu,$v['m_id'],$v['level']+1);
+            }
+        }
+        return $arr;
+    }
+    /*
      * @content 获取天气
      * $keyword接受的消息
      */

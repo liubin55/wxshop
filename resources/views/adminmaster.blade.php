@@ -89,6 +89,8 @@
                         <dd><a href="{{url('wechat/uploads')}}">临时素材添加</a></dd>
                         <dd><a href="{{url('wechat/subtype')}}">首次关注回复类型设置</a></dd>
                         <dd><a href="{{url('wechat/subuploads')}}">首次关注回复内容设置</a></dd>
+                        <dd><a href="javascript:;" id="btn">自定义菜单</a></dd>
+                        <dd><a href="{{url('wechat/menuadd')}}">添加自定义菜单</a></dd>
                     </dl>
                 </li>
             </ul>
@@ -109,8 +111,16 @@
 <script src="{{url('js/jquery-1.11.2.min.js')}}"></script>
 <script>
     //JavaScript代码区域
-    layui.use('element', function(){
+    layui.use(['element','layer'], function(){
         var element = layui.element;
+        var layer=layui.layer;
+        $("#btn").click(function () {
+            layer.confirm('是否开启自定义菜单', {icon: 3, title:'提示'}, function(index){
+                //do something
+                location.href="{{url('wechat/menu')}}"
+                layer.close(index);
+            });
+        })
 
     });
    

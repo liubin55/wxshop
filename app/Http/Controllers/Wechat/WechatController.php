@@ -9,6 +9,9 @@ use CURLFile;
 use App\Models\Wxmedia;
 use App\Models\Submedia;
 use App\Models\Goods;
+use App\Models\Menu;
+use Illuminate\Support\Facades\Cache;
+
 class WechatController extends Controller
 {
     /*
@@ -137,8 +140,6 @@ class WechatController extends Controller
         }else{
             $submedia=new Submedia;
             $submedia->type=$request->type;
-            $submedia->purl=$request->input('purl',null);
-            $submedia->title=$request->input('title',null);
             $submedia->contents=$request->input('contents',null);
             $submedia->gettime=time();
             $res=$submedia->save();
@@ -215,6 +216,235 @@ class WechatController extends Controller
         }else{
             return false;
         }
+    }
+    /*
+     * @content 添加自定义菜单
+     *
+     */
+
+    public function menuadd()
+    {
+        $menu=Menu::where('pid',0)->get()->toArray();
+        return view('wechat.menuadd',['menu'=>$menu]);
+    }
+    /*
+     * @content 执行添加
+     */
+    public function menuaddDo(Request $request)
+    {
+        $data=[
+            'name'=>$request->input('name'),
+            'type'=>$request->input('type',null),
+            'pid'=>$request->pid,
+            'key'=>$request->input('key',null),
+            'url'=>$request->input('url',null)
+        ];
+        $res=Menu::insert($data);
+        if($res){
+            echo "<script> alert('添加成功');parent.location.href='/wechat/menu'; </script>";
+        }else{
+            echo "<script> alert('添加失败');parent.location.href='/wechat/menuadd'; </script>";
+        }
+    }
+    /*
+     * @content 自定义菜单列表
+     */
+    public function menu()
+    {
+        //自定义菜单启动
+        $res=$this->menutoken();
+        //查询显示列表
+        $data=Menu::all()->toArray();
+        $menuInfo=Wechat::getMenu($data,0);
+        //获取token
+        $token=Wechat::putAccessToken();
+        //查询当前自定义菜单
+        $url="https://api.weixin.qq.com/cgi-bin/menu/get?access_token=$token";
+        $obj=file_get_contents($url);
+        if(Cache::has('data')){
+            $obj=Cache::get('data');
+        }else{
+            $obj=file_get_contents($url);
+            Cache::put('data',$obj,1000);
+        }
+        return view('wechat.menu',['menuInfo'=>$menuInfo],['data'=>$obj]);
+    }
+    /*
+     * @content 删除菜单
+     *
+     */
+    public function menudel(Request $request)
+    {
+        $res=Menu::where('m_id',$request->m_id)->delete();
+        if($res){
+            echo json_encode(['font'=>'删除成功','code'=>'1']);
+        }else{
+            echo json_encode(['font'=>'删除失败','code'=>'2']);
+        }
+    }
+    /*
+     * @content 修改菜单
+     */
+    public function menuupd($id)
+    {
+        $menu=Menu::where('pid',0)->get()->toArray();
+        $data=Menu::where('m_id',$id)->first();
+        return view('wechat/menuupd',['data'=>$data],['menu'=>$menu]);
+    }
+    /*
+     * @content执行修改菜单
+     */
+    public function menuupdDo(Request $request)
+    {
+        $data=$request->all();
+        $res=Menu::where('m_id',$request->m_id)->first();
+        if($request->type=='view'){
+            $data=[
+                'name'=>$request->input('name',null),
+                'type'=>$request->input('type',null),
+                'key'=>null,
+                'url'=>$request->input('url',null),
+                'pid'=>$request->input('pid',null)
+            ];
+        }elseif($request->type=='click'){
+            $data=[
+                'name'=>$request->input('name',null),
+                'type'=>$request->input('type',null),
+                'url'=>null,
+                'key'=>$request->input('key',null),
+                'pid'=>$request->input('pid',null)
+            ];
+        }else{
+            $data=[
+                'name'=>$request->input('name',null),
+                'type'=>$request->input('type',null),
+                'url'=>null,
+                'key'=>null,
+                'pid'=>0
+            ];
+        }
+        $re=Menu::where('m_id',$request->m_id)->update($data);
+        if($re){
+            if($res->status==1){
+                Cache::flush();
+            }
+            echo "<script> alert('修改成功');parent.location.href='/wechat/menu'; </script>";
+        }else{
+            echo "<script> alert('修改失败');parent.location.href='/wechat/menuupd'; </script>";
+        }
+
+    }
+    /*
+     * \@content 修改菜单状态
+     */
+    public function menustatus(Request $requset)
+    {
+        $status=$requset->status;
+        if($status==1){
+            $obj=Menu::where('m_id',$requset->m_id)->first();
+            if($obj->pid==0){
+                $count=Menu::where('status',1)->where('pid',0)->count();
+               if($count>=3){
+                   echo json_encode(['font'=>'一级菜单不能超过3个','code'=>'2']);
+               }else{
+                   $res=Menu::where('m_id',$requset->m_id)->update(['status'=>$status]);
+                   if($res){
+                       Cache::flush();
+                       echo json_encode(['font'=>'开启成功','code'=>'1']);
+                   }else{
+                       echo json_encode(['font'=>'开启失败','code'=>'2']);
+                   }
+               }
+            }else{
+                $arr=Menu::where('m_id',$obj->pid)->first();
+                if($arr->status==1){
+                    $count=Menu::where('status',1)->where('pid',$requset->m_id)->count();
+                    if($count>=5){
+                        echo json_encode(['font'=>'二级菜单不能超过5个','code'=>'2']);
+                    }else{
+                        $res=Menu::where('m_id',$requset->m_id)->update(['status'=>$status]);
+                        if($res){
+                            Cache::flush();
+                            echo json_encode(['font'=>'开启成功','code'=>'1']);
+                        }else{
+                            echo json_encode(['font'=>'开启失败','code'=>'2']);
+                        }
+                    }
+                }else{
+                    echo json_encode(['font'=>'请先开启一级菜单然后再开启此菜单','code'=>'1']);
+                }
+            }
+        }else{
+            $res=Menu::where('m_id',$requset->m_id)->update(['status'=>$status]);
+            if($res){
+                Cache::flush();
+                echo json_encode(['font'=>'关闭成功','code'=>'1']);
+            }else{
+                echo json_encode(['font'=>'关闭失败','code'=>'2']);
+            }
+        }
+    }
+    /*
+     * @content 自定义菜单接口
+     * 
+     */
+    private function menutoken()
+    {
+        //获取token
+        $token=Wechat::putAccessToken();
+        //自定义菜单接口
+        $url="https://api.weixin.qq.com/cgi-bin/menu/create?access_token=$token";
+        $data=$this->getdata();
+        $obj=Wechat::httpPost($url,$data);
+        return $obj;
+    }
+
+
+    /*
+     * @content 拼接借口需要的data
+     */
+    private function getdata()
+    {
+        $menu=Menu::where('status',1)->where('pid',0)->get()->toArray();
+        $data=[];
+        foreach ($menu as $key => $val){
+            $data[$key]['name'] = $val['name'];
+            // 有二级菜单的时候 一级不需要链接 留空
+            if(empty($val['type'])) {
+                // 找二级菜单的信息
+                $son =  Menu::where('pid',$val['m_id'])->where('status',1)->get()->toArray();
+                if(!empty($son)){
+                    foreach ($son as $k =>  $value) {
+                        if($value['type']=='view'){
+                            $data[$key]['sub_button'][] = [
+                                'type' => 'view',
+                                'url' => $value['url'],
+                                'name' => $value['name'],
+                            ];
+                        }else if($value['type']=='click'){
+                            $data[$key]['sub_button'][] = [
+                                'type' => 'click',
+                                'key' => $value['key'],
+                                'name' => $value['name'],
+                            ];
+                        }
+
+                    }
+                }
+            }else{
+                if($val['type']=='view'){
+                    $data[$key]['type'] = 'view';
+                    $data[$key]['url'] = $val['url'];
+                }elseif($val['type']=='click'){
+                    $data[$key]['type'] = 'view';
+                    $data[$key]['key'] = $val['key'];
+                }
+            }
+        }
+        rsort($data);
+        $data = ['button'=>$data];
+        $data = json_encode($data,JSON_UNESCAPED_UNICODE);
+        return $data;
     }
 
     /*

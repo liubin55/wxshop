@@ -96,8 +96,20 @@ Route::prefix('wechat')->group(function (){
     route::post('subuploadsDo','Wechat\WechatController@subuploadsDo');
     route::get('subtype','Wechat\WechatController@subtype');
     route::post('subtypeDo','Wechat\WechatController@subtypeDo');
+    route::get('menuadd','Wechat\WechatController@menuadd');
+    route::post('menuaddDo','Wechat\WechatController@menuaddDo');
+    route::get('menu','Wechat\WechatController@menu');
+    route::post('menustatus','Wechat\WechatController@menustatus');
+    route::get('menuupd/{id?}','Wechat\WechatController@menuupd');
+    route::post('menuupdDo','Wechat\WechatController@menuupdDo');
+    route::post('menudel','Wechat\WechatController@menudel');
 });
 //后台路由
 Route::prefix('admin')->group(function (){
     route::get('/','Admin\AdminController@index');
+});
+
+
+Route::prefix("kaoshi")->group(function (){
+   route::any('token','Kaoshi\KaoshiController@getAccesstoken');
 });
