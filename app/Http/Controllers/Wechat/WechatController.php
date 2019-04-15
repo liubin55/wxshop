@@ -11,7 +11,6 @@ use App\Models\Submedia;
 use App\Models\Goods;
 use App\Models\Menu;
 use Illuminate\Support\Facades\Cache;
-
 class WechatController extends Controller
 {
     /*

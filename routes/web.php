@@ -111,5 +111,5 @@ Route::prefix('admin')->group(function (){
 
 
 Route::prefix("kaoshi")->group(function (){
-   route::any('token','Kaoshi\KaoshiController@getAccesstoken');
+   route::any('token','Kaoshi\KaoshiController@check');
 });

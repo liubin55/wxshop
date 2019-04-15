@@ -21,5 +21,6 @@ class VerifyCsrfToken extends Middleware
     protected $except = [
         //csrf白名单
         '/wechat',
+        '/kaoshi/token',
     ];
 }
