@@ -39,6 +39,12 @@
             <a href="https://m.1yyg.com/v44/passport/FindPassword.do">忘记密码？</a><b></b>
             <a href="{{url('/register')}}">新用户注册</a>
         </div>
+        <div>
+            第三方登录
+            <a href="https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxeaedc828205cb11f&redirect_uri=http%3A%2F%2Fnichousha.xyz%2Fsend%2Fwxlogin&response_type=code&scope=snsapi_userinfo&state=liubin980211#wechat_redirect">
+                <img src="{{url('images/wxlogo.jpg')}}" alt="">
+            </a>
+        </div>
     </div>
     <div class="oter_operation gray9" style="display: none;">
         

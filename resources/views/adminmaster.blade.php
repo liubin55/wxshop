@@ -43,7 +43,7 @@
         <div class="layui-side-scroll">
             <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
             <ul class="layui-nav layui-nav-tree"  lay-filter="test">
-                <li class="layui-nav-item layui-nav-itemed">
+                <li class="layui-nav-item">
                     <a href="javascript:;">管理员管理</a>
                     <dl class="layui-nav-child">
                         <dd><a href="javascript:;">管理员列表</a></dd>
@@ -60,37 +60,32 @@
                     </dl>
                 </li>
                 <li class="layui-nav-item">
-                    <a class="" href="javascript:;">商品管理</a>
-                    <dl class="layui-nav-child">
-                        <dd><a href="javascript:;">商品列表</a></dd>
-                        <dd><a href="javascript:;">修改商品</a></dd>
-                        <dd><a href="javascript:;">商品回收站</a></dd>
-                    </dl>
-                </li>
-                <li class="layui-nav-item">
-                    <a class="" href="javascript:;">品牌管理</a>
-                    <dl class="layui-nav-child">
-                        <dd><a href="javascript:;">品牌列表</a></dd>
-                        <dd><a href="javascript:;">品牌修改</a></dd>
-                        <dd><a href="javascript:;">品牌回收站</a></dd>
-                    </dl>
-                </li>
-                <li class="layui-nav-item">
-                    <a class="" href="javascript:;">分类管理</a>
-                    <dl class="layui-nav-child">
-                        <dd><a href="javascript:;">分类列表</a></dd>
-                        <dd><a href="javascript:;">分类修改</a></dd>
-                        <dd><a href="javascript:;">分类回收站</a></dd>
-                    </dl>
-                </li>
-                <li class="layui-nav-item">
-                    <a href="javascript:;">微信公众号</a>
+                    <a href="javascript:;">微信公众号素材添加/设置</a>
                     <dl class="layui-nav-child">
                         <dd><a href="{{url('wechat/uploads')}}">临时素材添加</a></dd>
                         <dd><a href="{{url('wechat/subtype')}}">首次关注回复类型设置</a></dd>
                         <dd><a href="{{url('wechat/subuploads')}}">首次关注回复内容设置</a></dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item">
+                    <a href="javascript:;">微信公众号自定义菜单</a>
+                    <dl class="layui-nav-child">
                         <dd><a href="javascript:;" id="btn">自定义菜单</a></dd>
                         <dd><a href="{{url('wechat/menuadd')}}">添加自定义菜单</a></dd>
+                        <dd><a href="{{url('send/send')}}">群发添加</a></dd>
+                        <dd><a href="{{url('send/sendtype')}}">群发消息设置</a></dd>
+                        <dd><a href="{{url('send/sends')}}">发布群消息</a></dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item">
+                    <a href="javascript:;">微信标签和openid</a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="{{url('send/openidlist')}}">openid列表</a></dd>
+                        <dd><a href="{{url('send/send')}}">群发添加</a></dd>
+                        <dd><a href="{{url('send/sendtype')}}">群发消息设置</a></dd>
+                        <dd><a href="{{url('send/sends')}}">发布群消息</a></dd>
+                        <dd><a href="{{url('send/tagsadd')}}">添加标签</a></dd>
+                        <dd><a href="{{url('send/tagslist')}}">标签列表</a></dd>
                     </dl>
                 </li>
             </ul>

@@ -59,17 +59,12 @@
 			<ul class="right-con">
 				<li>
 				<span style="color: #4E555E;">
-					<a href="./index.php?i=107&amp;c=entry&amp;id=10&amp;do=notice&amp;m=weliam_indiana" style="color: #4E555E;">恭喜<span class="username">啊啊啊</span>获得了<span>iphone7 红色 128G 闪耀你的眼</span></a>
+					<a href="{{url('images/0.jpg')}}" style="color: #4E555E;"><span class="username">微信公众号上线了，快点去关注吧!</span></a>
 				</span>
 				</li>
 				<li>
 				<span style="color: #4E555E;">
-					<a href="./index.php?i=107&amp;c=entry&amp;id=10&amp;do=notice&amp;m=weliam_indiana" style="color: #4E555E;">恭喜<span class="username">啊啊啊</span>获得了<span>iphone7 红色 128G 闪耀你的眼</span></a>
-				</span>
-				</li>
-				<li>
-				<span style="color: #4E555E;">
-					<a href="./index.php?i=107&amp;c=entry&amp;id=10&amp;do=notice&amp;m=weliam_indiana" style="color: #4E555E;">恭喜<span class="username">啊啊啊</span>获得了<span>iphone7 红色 128G 闪耀你的眼</span></a>
+					<a href="javascript:;" style="color: #4E555E;">恭喜<span class="username">啊啊啊</span>获得了<span>iphone7 红色 128G 闪耀你的眼</span></a>
 				</span>
 				</li>
 			</ul>

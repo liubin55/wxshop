@@ -2,6 +2,7 @@
 namespace App\Models;
 use App\Models\Submedia;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Goods;
 class Wechat
 {
     /*
@@ -292,6 +293,122 @@ class Wechat
         $resultStr=sprintf($textTpl,$FromUserName,$ToUserName,$time,$msgtype,$contentStr);
         echo $resultStr;
         exit();
+    }
+
+    /*
+     * @content 回复新品
+     */
+    static public function getOrder($FromUserName,$ToUserName,$time)
+    {
+        $info=Goods::where('is_up',1)->orderBy('create_time','desc')->limit(5)->get()->toArray();
+        $itemTpl = "<item>
+                        <Title><![CDATA[%s]]></Title>
+                        <Description><![CDATA[%s]]></Description>
+                        <PicUrl><![CDATA[%s]]></PicUrl>
+                        <Url><![CDATA[%s]]></Url>
+                    </item>";
+        $item_str = "";
+        foreach ($info as $v){
+            $item_str .= sprintf($itemTpl,$v['goods_name'],$v['goods_desc'],("http://nichousha.xyz/images/goodsLogo/".$v['goods_img']),"http://nichousha.xyz/shopcontent/".$v['goods_id']);
+        }
+        $xmlTpl = "<xml>
+                    <ToUserName><![CDATA[%s]]></ToUserName>
+                    <FromUserName><![CDATA[%s]]></FromUserName>
+                    <CreateTime>%s</CreateTime>
+                    <MsgType><![CDATA[news]]></MsgType>
+                    <ArticleCount>5</ArticleCount>
+                    <Articles>
+                        $item_str
+                    </Articles>
+                   </xml>";
+
+        $result = sprintf($xmlTpl,$FromUserName,$ToUserName,$time);
+        echo $result;
+    }
+    
+    /*
+     * @content 获取openid
+     */
+    static public function getOpenid()
+    {
+        $token=self::putAccessToken();
+        $url="https://api.weixin.qq.com/cgi-bin/user/get?access_token=$token";
+        $re=file_get_contents($url);
+        $data=json_decode($re,true);
+        return $data['data']['openid'];
+    }
+    /*
+     * @content 获取media_id
+     */
+    static public function getMediaid()
+    {
+        $token=self::putAccessToken();
+        $info=Submedia::where('type','thumb')->orderBy('id','desc')->first();
+        $url="https://api.weixin.qq.com/cgi-bin/media/uploadnews?access_token=$token";
+        $data=[
+            'articles'=>[
+                [
+                    'thumb_media_id'=>$info['media_id'],
+                    "title"=>$info['title'],
+                    "content"=>$info['contents'],
+                ]
+            ]
+        ];
+        $data=json_encode($data,JSON_UNESCAPED_UNICODE);
+        $res=self::httpPost($url,$data);
+        $re=json_decode($res,true);
+        return $re['media_id'];
+    }
+
+    static public function gettemplate($fromusername,$num)
+    {
+        $info=Order::where('order_no',$num)
+            ->join('order_detial','order.order_id','=','order_detial.order_id')
+            ->first()
+            ->toArray();
+        $buy_number=$info['self_price']*$info['buy_number'];
+        $data='{
+           "touser":"'.$fromusername.'",
+           "template_id":"yK4qiE6faeTZVyxRhcCOKFl80P95IunzThlpZ0MC9wo",
+           "url":"http://nichousha.xyz/recorddetail",          
+           "data":{
+                   "Welcome": {
+                       "value":"欢迎使用订单查询系统",
+                       "color":"#173177"
+                   },
+                   "Orderno":{
+                       "value":"'.$info['order_no'].'",
+                       "color":"#173177"
+                   },
+                   "Goodsname": {
+                       "value":"'.$info['goods_name'].'元",
+                       "color":"#173177"
+                   },
+                   "Goodsprice": {
+                       "value":"'.$info['self_price'].'",
+                       "color":"#173177"
+                   },
+                   "Goodnum":{
+                       "value":"'.$info['buy_number'].'",
+                       "color":"#173177"
+                   },
+                   "taotal":{
+                       "value":"'. $buy_number.'",
+                       "color":"#173177"
+                   },
+                   "Status":{
+                       "value":"未发货",
+                       "color":"#173177"
+                   },
+                   "thanks":{
+                       "value":"感谢您的使用！",
+                       "color":"#173177"
+                   }
+           }
+       }';
+        $token=self::putAccessToken();
+        $url="https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=$token";
+        self::httpPost($url,$data);
     }
 }
 

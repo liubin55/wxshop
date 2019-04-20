@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Wechat;
 
+use App\Models\Order;
+use App\Models\Users;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Wechat;
@@ -170,9 +172,9 @@ class WechatController extends Controller
         $str='<?php return '.var_export($config,true).";?>";
         $res=file_put_contents($path,$str);
         if($res){
-            echo "修改成功";
+            echo "设置成功";
         }else{
-            echo "修改失败";
+            echo "设置失败";
         }
     }
     /*
@@ -180,7 +182,7 @@ class WechatController extends Controller
      */
     public function index()
     {
-//        //校验微信签名
+        //校验微信签名
 //        $echostr=$_GET['echostr'];
 //        if($this->checkSignature()){
 //            echo $echostr;
@@ -240,7 +242,7 @@ class WechatController extends Controller
         ];
         $res=Menu::insert($data);
         if($res){
-            echo "<script> alert('添加成功');parent.location.href='/wechat/menu'; </script>";
+            echo "<script> alert('添加成功');parent.location.href='/wechat/menuadd'; </script>";
         }else{
             echo "<script> alert('添加失败');parent.location.href='/wechat/menuadd'; </script>";
         }
@@ -252,6 +254,7 @@ class WechatController extends Controller
     {
         //自定义菜单启动
         $res=$this->menutoken();
+        $this->menumatch();
         //查询显示列表
         $data=Menu::all()->toArray();
         $menuInfo=Wechat::getMenu($data,0);
@@ -398,7 +401,50 @@ class WechatController extends Controller
         return $obj;
     }
 
-
+    /*
+     * @content 个性化菜单
+     */
+    private function menumatch()
+    {
+        $token=Wechat::putAccessToken();
+        $url="https://api.weixin.qq.com/cgi-bin/menu/addconditional?access_token=$token";
+        $data='{
+    "button": [
+        {
+            "type": "click", 
+            "name": "今日歌曲", 
+            "key": "V1001_TODAY_MUSIC"
+        }, 
+        {
+            "name": "菜单", 
+            "sub_button": [
+                {
+                    "type": "view", 
+                    "name": "搜索", 
+                    "url": "http://www.soso.com/"
+                }, 
+                {
+                    "type": "miniprogram", 
+                    "name": "wxa", 
+                    "url": "http://mp.weixin.qq.com", 
+                    "appid": "wx286b93c14bbf93aa", 
+                    "pagepath": "pages/lunar/index"
+                }, 
+                {
+                    "type": "click", 
+                    "name": "赞一下我们", 
+                    "key": "V1001_GOOD"
+                }
+            ]
+        }
+    ], 
+    "matchrule": {
+        "sex": "2", 
+    }
+}';
+        $re=Wechat::httpPost($url,$data);
+        return $re;
+    }
     /*
      * @content 拼接借口需要的data
      */
@@ -435,7 +481,7 @@ class WechatController extends Controller
                     $data[$key]['type'] = 'view';
                     $data[$key]['url'] = $val['url'];
                 }elseif($val['type']=='click'){
-                    $data[$key]['type'] = 'view';
+                    $data[$key]['type'] = 'click';
                     $data[$key]['key'] = $val['key'];
                 }
             }
@@ -470,9 +516,21 @@ class WechatController extends Controller
         //判断是否为事件
         if($postObj->MsgType=='event'){
             if($postObj->Event=='subscribe'){//，关注事件
-                $type=config('wxconfig.subscribe');
-                $types=ucfirst($type);
-                Wechat::$types($FromUserName,$ToUserName,$time,$type);
+//                $type=config('wxconfig.subscribe');
+//                $types=ucfirst($type);
+//                Wechat::$types($FromUserName,$ToUserName,$time,$type);
+                $re=Users::where('openid',$FromUserName)->first();
+                if(empty($re)){
+                    $contentStr="尊敬的用户您好，乐美微商城感谢您的使用，首次关注需要您绑定本网站的账户，以便更方便的为您提供服务 <a href='https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxeaedc828205cb11f&redirect_uri=http%3A%2F%2Fnichousha.xyz%2Fsend%2Fwxlogin&response_type=code&scope=snsapi_userinfo&state=liubin980211#wechat_redirect'>点击绑定</a>";//回复的内容
+                }else{
+                    $contentStr=$re->user_name."欢迎您回来";
+                }
+                $resultStr=sprintf($textTpl,$FromUserName,$ToUserName,$time,$msgtype,$contentStr);
+                echo $resultStr;
+                exit();
+            }else if($postObj->Event=='CLICK'&&$postObj->EventKey=='GETORDER'){//点击事件
+               Wechat::getOrder($FromUserName,$ToUserName,$time);
+               exit();
             }
         }
         if($keyword=='你好'){
@@ -482,6 +540,24 @@ class WechatController extends Controller
             exit();
         }else if (strstr($keyword, "天气")){//发送查看有没有天气两个字
             $contentStr=Wechat::getWeather($keyword);
+            $resultStr=sprintf($textTpl,$FromUserName,$ToUserName,$time,$msgtype,$contentStr);
+            echo $resultStr;
+            exit();
+        }else if (strstr($keyword, "订单号")){//发送查看有没有订单号
+            $num = trim(str_replace('订单号', '', $keyword));
+            $data=Order::where('order_no',$num)->first();
+            if($data!=''){
+                Wechat::gettemplate($FromUserName,$num);
+            }else{
+                $contentStr="你是想要查询订单号么，查询格式：订单号1234";
+                $resultStr=sprintf($textTpl,$FromUserName,$ToUserName,$time,$msgtype,$contentStr);
+                echo $resultStr;
+                exit();
+            }
+        }elseif(strstr($keyword, "微信登录")){
+            $appid=env('WXAPPID');
+            $wx_url=urlencode("http://nichousha.xyz/send/wxlogin");
+            $contentStr="https://open.weixin.qq.com/connect/oauth2/authorize?appid=$appid&redirect_uri=$wx_url&response_type=code&scope=snsapi_userinfo&state=liubin980211#wechat_redirect";
             $resultStr=sprintf($textTpl,$FromUserName,$ToUserName,$time,$msgtype,$contentStr);
             echo $resultStr;
             exit();

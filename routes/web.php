@@ -108,8 +108,27 @@ Route::prefix('wechat')->group(function (){
 Route::prefix('admin')->group(function (){
     route::get('/','Admin\AdminController@index');
 });
+//群发
+Route::prefix('send')->group(function (){
+    route::get('send','Send\SendallController@send');
+    route::get('sends','Send\SendallController@sends');
+    route::post('sendDo','Send\SendallController@sendDo');
+    route::get('sendtype','Send\SendallController@sendtype');
+    route::post('sendtypeDo','Send\SendallController@sendtypeDo');
+    route::any('sendall','Send\SendallController@sendall');
+    route::post('gettags','Send\SendallController@gettags');
+    route::post('tagsman','Send\SendallController@tagsman');
+    route::get('openidlist','Send\SendallController@openidlist');
+    route::get('tagsadd','Send\SendallController@tagsadd');
+    route::get('tagslist','Send\SendallController@tagslist');
+    route::post('tagsdel','Send\SendallController@tagsdel');
+    route::any('wxlogin','Send\SendallController@wxlogin');
+    route::post('wxloginDo','Send\SendallController@wxloginDo');
+    route::any('wxloginm','Send\SendallController@wxloginm');
+    route::get('randmun','Send\SendallController@randmun');
+});
 
-
+//模拟测试
 Route::prefix("kaoshi")->group(function (){
    route::any('token','Kaoshi\KaoshiController@check');
 });
