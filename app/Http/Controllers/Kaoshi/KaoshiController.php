@@ -50,6 +50,7 @@ class KaoshiController extends Controller
                 $contentStr="已收到用户信息";//回复的内容
                 $resultStr=sprintf($textTpl,$FromUserName,$ToUserName,$time,$msgtype,$contentStr);
                 echo $resultStr;
+                exit();
             }
         }
     }

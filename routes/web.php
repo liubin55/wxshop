@@ -103,6 +103,7 @@ Route::prefix('wechat')->group(function (){
     route::get('menuupd/{id?}','Wechat\WechatController@menuupd');
     route::post('menuupdDo','Wechat\WechatController@menuupdDo');
     route::post('menudel','Wechat\WechatController@menudel');
+    route::get('medialist','Wechat\WechatController@medialist');
 });
 //后台路由
 Route::prefix('admin')->group(function (){
@@ -116,6 +117,7 @@ Route::prefix('send')->group(function (){
     route::get('sendtype','Send\SendallController@sendtype');
     route::post('sendtypeDo','Send\SendallController@sendtypeDo');
     route::any('sendall','Send\SendallController@sendall');
+    route::any('sendweatherall','Send\SendallController@sendweatherall');
     route::post('gettags','Send\SendallController@gettags');
     route::post('tagsman','Send\SendallController@tagsman');
     route::get('openidlist','Send\SendallController@openidlist');
@@ -124,7 +126,6 @@ Route::prefix('send')->group(function (){
     route::post('tagsdel','Send\SendallController@tagsdel');
     route::any('wxlogin','Send\SendallController@wxlogin');
     route::post('wxloginDo','Send\SendallController@wxloginDo');
-    route::any('wxloginm','Send\SendallController@wxloginm');
     route::get('randmun','Send\SendallController@randmun');
 });
 

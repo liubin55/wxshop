@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Cate;
 use App\Models\Goods;
+use Illuminate\Support\Facades\Redis;
 
 class GoodsController extends Controller
 {
@@ -31,11 +32,13 @@ class GoodsController extends Controller
  */
     public function shopcontent($id)
     {
+        $signPackage=Redis::get('jssdk');
+        $signPackage=json_decode($signPackage,true);
         $goodsmodel=new Goods;
         $goods=$goodsmodel->where('goods_id','=',$id)->first()->toArray();
         $goods['goods_imgs']=rtrim($goods['goods_imgs'],'|');
         $goods['goods_imgs']=explode('|',$goods['goods_imgs']);
-        return view('shopcontent',['goods'=>$goods]);
+        return view('shopcontent',['goods'=>$goods,'signPackage'=>$signPackage]);
     }
     //主页下的分类跳转数据
     public function cateshops($id)

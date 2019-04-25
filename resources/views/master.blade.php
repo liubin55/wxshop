@@ -38,7 +38,7 @@
 </body>
 </html>
 
-
+<script src="http://res2.wx.qq.com/open/js/jweixin-1.4.0.js"></script>
 <script src="{{url('js/jquery-1.8.3.min.js')}}"></script>
 <script src="http://cdn.bootcss.com/flexslider/2.6.2/jquery.flexslider.min.js"></script>
 <script src="{{url('layui/layui.js')}}"></script>

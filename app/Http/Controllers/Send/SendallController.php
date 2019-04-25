@@ -282,7 +282,26 @@ class SendallController extends Controller
             echo "<script> alert('发布失败');parent.location.href='/send/sends'; </script>";
         }
     }
+
+    //计划任务群发
+    public function sendweatherall()
+    {
+        $token=Wechat::putAccessToken();
+        $data=Wechat::getWeather("北京");
+        $url="https://api.weixin.qq.com/cgi-bin/message/mass/send?access_token=$token";
+        $openid=Wechat::getOpenid();
+        $data=[
+            'touser'=>$openid,
+            'msgtype'=>'text',
+            'text'=>[
+                'content'=>$data
+            ]
+        ];
+        $data=json_encode($data,JSON_UNESCAPED_UNICODE);
+        $re=Wechat::httpPost($url,$data);
+    }
     /*
+     *
      * @content openid 列表
      */
     public function openidlist()
@@ -380,33 +399,9 @@ class SendallController extends Controller
         }
     }
 
-    /*
-    * @content 微信登录
-    */
-    public function wxloginm(Request $request)
-    {
-        //获取code
-        $code=$request->code;
-        //获取access_token
-        $appid="wx4f6a1507ac053353";
-        $appsecret="03df2b702bdbd21500ebfa98da4c41df";
-        $url="https://api.weixin.qq.com/sns/oauth2/access_token?appid=$appid&secret=$appsecret&code=$code&grant_type=authorization_code";
-        $data=file_get_contents($url);
-        $data=json_decode($data,true);
-        $openid =  $data['openid'];
-//        $access_token=$data['access_token'];
-//        $openid=$data['openid'];
-//        //获取用户数据
-//        $url_user="https://api.weixin.qq.com/sns/userinfo?access_token=$access_token&openid=$openid&lang=zh_CN";
-//        $userinfo=file_get_contents($url_user);
-//        $userinfo=json_decode($userinfo,JSON_UNESCAPED_UNICODE);
 
 
-        return redirect('http://47.102.145.166/like/'.$openid);
-
-    }
-
-
+//本地随机数
     public function random($length, $chars = '123456789') {
         $hash = '';
         $max = strlen($chars) - 1;
@@ -452,6 +447,7 @@ class SendallController extends Controller
              }
          }
          if($fileName){
+
             echo '存在<br>';
             echo $fileName.'.txt';
          }else{

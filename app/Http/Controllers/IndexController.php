@@ -15,8 +15,11 @@ class IndexController extends Controller
     /*
      * @content 主页
      */
-    public function index()
+    public function index(Request $request)
     {
+        //获取wxjssdk参数
+        $signPackage=json_decode(Redis::get('jssdk'),true);
+        //$signPackage=$request->signPackage;
         //轮播图
         $goodsmodel=new Goods;
         $data=$goodsmodel->orderBy('create_time','desc')->select('goods_img')->paginate(5);
@@ -27,7 +30,7 @@ class IndexController extends Controller
         //分类
         $catemodel=new Cate;
         $cate=$catemodel->where('pid','=',0)->get();
-        return view('index',['data'=>$data],['goodshost'=>$goodshost])
+        return view('index',['data'=>$data,'signPackage'=>$signPackage],['goodshost'=>$goodshost])
             ->with('goodsinfo',$goodsinfo)
             ->with('cate',$cate);
     }

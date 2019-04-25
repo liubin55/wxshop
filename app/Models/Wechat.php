@@ -296,7 +296,7 @@ class Wechat
     }
 
     /*
-     * @content 回复新品
+     * @content 回复新品5条图文
      */
     static public function getOrder($FromUserName,$ToUserName,$time)
     {
@@ -324,6 +324,36 @@ class Wechat
 
         $result = sprintf($xmlTpl,$FromUserName,$ToUserName,$time);
         echo $result;
+    }
+    /*
+ * @content 回复最新商品
+ */
+    static public function getGoods($FromUserName,$ToUserName,$time)
+    {
+        $textTpl="<xml>
+                          <ToUserName><![CDATA[%s]]></ToUserName>
+                          <FromUserName><![CDATA[%s]]></FromUserName>
+                          <CreateTime>%s</CreateTime>
+                          <MsgType><![CDATA[%s]]></MsgType>
+                          <ArticleCount>1</ArticleCount>
+                          <Articles>
+                            <item>
+                              <Title><![CDATA[%s]]></Title>
+                              <Description><![CDATA[%s]]></Description>
+                              <PicUrl><![CDATA[%s]]></PicUrl>
+                              <Url><![CDATA[%s]]></Url>
+                            </item>
+                          </Articles>
+                        </xml>";
+        $msgtype='news';
+        $info=Goods::where('is_up',1)->orderBy('create_time','desc')->first()->toArray();
+        $media_id="http://nichousha.xyz/images/goodsLogo/".$info['goods_img'];
+        $title=$info['goods_name'];
+        $Description=$info['goods_desc'];
+        $url="http://nichousha.xyz/shopcontent/".$info['goods_id'];
+        $resultStr=sprintf($textTpl,$FromUserName,$ToUserName,$time,$msgtype,$title,$Description,$media_id,$url);
+        echo $resultStr;
+        exit();
     }
     
     /*
@@ -359,7 +389,7 @@ class Wechat
         $re=json_decode($res,true);
         return $re['media_id'];
     }
-
+    //模板信息回复订单详情
     static public function gettemplate($fromusername,$num)
     {
         $info=Order::where('order_no',$num)

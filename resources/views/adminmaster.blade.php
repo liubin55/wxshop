@@ -63,8 +63,9 @@
                     <a href="javascript:;">微信公众号素材添加/设置</a>
                     <dl class="layui-nav-child">
                         <dd><a href="{{url('wechat/uploads')}}">临时素材添加</a></dd>
+                        <dd><a href="{{url('wechat/subuploads')}}">首次关注添加永久素材</a></dd>
+                        <dd><a href="{{url('wechat/medialist')}}">永久素材列表</a></dd>
                         <dd><a href="{{url('wechat/subtype')}}">首次关注回复类型设置</a></dd>
-                        <dd><a href="{{url('wechat/subuploads')}}">首次关注回复内容设置</a></dd>
                     </dl>
                 </li>
                 <li class="layui-nav-item">

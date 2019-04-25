@@ -5,8 +5,8 @@
 @section('content')
 	<div class="marginB" id="loadingPicBlock">
 		<!--首页头部-->
-		<div class="m-block-header" style="display: none">
-			<div class="search"></div>
+		<div class="m-block-header" >
+			<div class="search" id="getLocation"></div>
 			<a href="/" class="m-public-icon m-1yyg-icon"></a>
 		</div>
 		<!--首页头部 end-->
@@ -202,6 +202,122 @@
 			})
 
 
+		});
+	</script>
+
+	<script>
+		/*
+         * 注意：
+         * 1. 所有的JS接口只能在公众号绑定的域名下调用，公众号开发者需要先登录微信公众平台进入“公众号设置”的“功能设置”里填写“JS接口安全域名”。
+         * 2. 如果发现在 Android 不能分享自定义内容，请到官网下载最新的包覆盖安装，Android 自定义分享接口需升级至 6.0.2.58 版本及以上。
+         * 3. 常见问题及完整 JS-SDK 文档地址：http://mp.weixin.qq.com/wiki/7/aaa137b55fb2e0456bf8dd9148dd613f.html
+         *
+         * 开发中遇到问题详见文档“附录5-常见错误及解决办法”解决，如仍未能解决可通过以下渠道反馈：
+         * 邮箱地址：weixin-open@qq.com
+         * 邮件主题：【微信JS-SDK反馈】具体问题
+         * 邮件内容说明：用简明的语言描述问题所在，并交代清楚遇到该问题的场景，可附上截屏图片，微信团队会尽快处理你的反馈。
+         */
+		wx.config({
+			debug: false,
+			appId: "{{$signPackage['appId']}}",
+			timestamp: "{{$signPackage['timestamp']}}",
+			nonceStr: "{{$signPackage['nonceStr']}}",
+			signature: "{{$signPackage['signature']}}",
+			jsApiList: [
+				// 所有要调用的 API 都要加到这个列表中
+				'onMenuShareTimeline',//分享到朋友圈
+				'onMenuShareAppMessage',//分享给朋友”
+				'onMenuShareQQ',//分享到QQ
+				'onMenuShareWeibo',//分享到腾讯微博
+				'onMenuShareQZone',//分享到QQ空间
+				'getLocation',//获取地理位置
+				'openLocation',//打开当前位置
+			]
+		});
+		//点击获取地理位置
+		document.querySelector('#getLocation').onclick = function () {
+			wx.getLocation({
+				success: function (res) {
+					wx.openLocation({
+						latitude: res.latitude,// 纬度，浮点数，范围为90 ~ -90
+						longitude: res.longitude,// 经度，浮点数，范围为180 ~ -180。
+						name: res.speed,// 位置名
+						address: res.accuracy, // 地址详情说明
+						scale: 14, // 地图缩放级别,整形值,范围从1~28。默认为最大
+						infoUrl: 'http://weixin.qq.com'// 在查看位置界面底部显示的超链接,可点击跳转
+					});
+					//alert(JSON.stringify(res));
+				},
+				cancel: function (res) {
+					alert('获取失败');
+				}
+			});
+		};
+		wx.ready(function () {
+			// 在这里调用 API
+			wx.onMenuShareTimeline({
+				title: document.title, // 分享标题
+				link: document.URL, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
+				imgUrl: "http://mmbiz.qpic.cn/mmbiz_jpg/IvGPicSwdbXOxia4BUW4ibm2Sm0EXRWSqNxW3zFPyMJfjkU0o48nXw3ZkgZnibCxYHRJtT2DXSmIV6ykntBJNSkc6w/0?wx_fmt=jpeg", // 分享图标
+				success: function () {
+					// 用户点击了分享后执行的回调函数
+					layer.msg("分享成功")
+				},
+			});
+			wx.onMenuShareAppMessage({
+				title: document.title, // 分享标题
+				desc: "乐美微商城", // 分享描述
+				link: document.URL, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
+				imgUrl: "http://mmbiz.qpic.cn/mmbiz_jpg/IvGPicSwdbXOxia4BUW4ibm2Sm0EXRWSqNxW3zFPyMJfjkU0o48nXw3ZkgZnibCxYHRJtT2DXSmIV6ykntBJNSkc6w/0?wx_fmt=jpeg", // 分享图标
+				type: '', // 分享类型,music、video或link，不填默认为link
+				dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空
+				success: function () {
+					// 用户点击了分享后执行的回调函数
+					layer.msg("分享成功")
+				}
+			});
+			wx.onMenuShareQQ({
+				title: document.title, // 分享标题
+				desc: '乐美微商城', // 分享描述
+				link: document.URL, // 分享链接
+				imgUrl: "http://mmbiz.qpic.cn/mmbiz_jpg/IvGPicSwdbXOxia4BUW4ibm2Sm0EXRWSqNxW3zFPyMJfjkU0o48nXw3ZkgZnibCxYHRJtT2DXSmIV6ykntBJNSkc6w/0?wx_fmt=jpeg", // 分享图标
+				success: function () {
+				// 用户确认分享后执行的回调函数
+					layer.msg("分享成功")
+				},
+				cancel: function () {
+				// 用户取消分享后执行的回调函数
+					layer.msg("取消成功")
+				}
+			});
+			wx.onMenuShareWeibo({
+				title: document.title, // 分享标题
+				desc: '乐美微商城', // 分享描述
+				link: document.URL, // 分享链接
+				imgUrl: "http://mmbiz.qpic.cn/mmbiz_jpg/IvGPicSwdbXOxia4BUW4ibm2Sm0EXRWSqNxW3zFPyMJfjkU0o48nXw3ZkgZnibCxYHRJtT2DXSmIV6ykntBJNSkc6w/0?wx_fmt=jpeg", // 分享图标
+				success: function () {
+					// 用户确认分享后执行的回调函数
+					layer.msg("分享成功")
+				},
+				cancel: function () {
+					// 用户取消分享后执行的回调函数
+					layer.msg("取消成功")
+				}
+			});
+			wx.onMenuShareQZone({
+				title: document.title, // 分享标题
+				desc: '乐美微商城', // 分享描述
+				link: document.URL, // 分享链接
+				imgUrl: "http://mmbiz.qpic.cn/mmbiz_jpg/IvGPicSwdbXOxia4BUW4ibm2Sm0EXRWSqNxW3zFPyMJfjkU0o48nXw3ZkgZnibCxYHRJtT2DXSmIV6ykntBJNSkc6w/0?wx_fmt=jpeg", // 分享图标
+				success: function () {
+					// 用户确认分享后执行的回调函数
+					layer.msg("分享成功")
+				},
+				cancel: function () {
+					// 用户取消分享后执行的回调函数
+					layer.msg("取消成功")
+				}
+			});
 		});
 	</script>
 @endsection

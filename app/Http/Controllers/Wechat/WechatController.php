@@ -13,6 +13,7 @@ use App\Models\Submedia;
 use App\Models\Goods;
 use App\Models\Menu;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Redis;
 class WechatController extends Controller
 {
     /*
@@ -151,6 +152,24 @@ class WechatController extends Controller
             }
         }
 
+    }
+    /*
+     * @content 素材列表
+     */
+    public function medialist(Request $request)
+    {
+        $page=$request->input('page',1);
+        //redis存储缓存
+        if(Redis::exists($page)){
+            $data=Redis::get($page);
+        }else{
+            $data=Submedia::paginate(5);;
+            $data=encrypt($data);
+            Redis::set($page,$data);
+            Redis::expire($page,100);
+        }
+        $data=decrypt($data);
+        return view('wechat.medialist',['data'=>$data]);
     }
     /*
      * @content 首次关注回复类型设置
@@ -500,7 +519,7 @@ class WechatController extends Controller
         //获取微信请求的所有内容
         $postStr=file_get_contents("php://input");
         //所有内容改为对象格式
-        $postObj=simplexml_load_string($postStr);
+        $postObj=simplexml_load_string($postStr,'SimpleXMLElement', LIBXML_NOCDATA);
         $FromUserName=$postObj->FromUserName;//请求消息的用户
         $ToUserName=$postObj->ToUserName;//“我”公众号id
         $keyword=$postObj->Content;//输入的内容
@@ -513,6 +532,35 @@ class WechatController extends Controller
                     <MsgType><![CDATA[%s]]></MsgType>
                     <Content><![CDATA[%s]]></Content>
                 </xml>";
+        $type=$postObj->MsgType;
+        $arr=[];
+        //文本存文件
+        if($type=='text'){
+            $arr[]=[
+                'openid'=>$FromUserName,
+                'content'=>$keyword,
+                 'time'=>$time,
+            ];
+            $arr=json_encode($arr,JSON_UNESCAPED_UNICODE);
+            $filename=public_path()."/recode/".date("Ymd")."/recode.php";
+            file_put_contents($filename,$arr,FILE_APPEND);
+            chown($filename,0777);
+        }
+        if($type=='image'){
+            $picurl=$postObj->PicUrl;
+            $img=file_get_contents($picurl);
+            $file=public_path()."/wx/".date("Ymd").'/'.time().'.jpg';
+            $res=file_put_contents($file,$img);
+            chown($file,0777);
+            if($res){
+                $contentStr="存储成功";//回复的内容
+            }else{
+                $contentStr="存储失败";//回复的内容
+            }
+            $resultStr=sprintf($textTpl,$FromUserName,$ToUserName,$time,$msgtype,$contentStr);
+            echo $resultStr;
+            exit();
+        }
         //判断是否为事件
         if($postObj->MsgType=='event'){
             if($postObj->Event=='subscribe'){//，关注事件
@@ -533,11 +581,8 @@ class WechatController extends Controller
                exit();
             }
         }
-        if($keyword=='你好'){
-            $contentStr="你好，有什么问题么";//回复的内容
-            $resultStr=sprintf($textTpl,$FromUserName,$ToUserName,$time,$msgtype,$contentStr);
-            echo $resultStr;
-            exit();
+        if($keyword=='最新商品'){
+            Wechat::getGoods($FromUserName,$ToUserName,$time);
         }else if (strstr($keyword, "天气")){//发送查看有没有天气两个字
             $contentStr=Wechat::getWeather($keyword);
             $resultStr=sprintf($textTpl,$FromUserName,$ToUserName,$time,$msgtype,$contentStr);
@@ -554,13 +599,13 @@ class WechatController extends Controller
                 echo $resultStr;
                 exit();
             }
-        }elseif(strstr($keyword, "微信登录")){
-            $appid=env('WXAPPID');
-            $wx_url=urlencode("http://nichousha.xyz/send/wxlogin");
-            $contentStr="https://open.weixin.qq.com/connect/oauth2/authorize?appid=$appid&redirect_uri=$wx_url&response_type=code&scope=snsapi_userinfo&state=liubin980211#wechat_redirect";
-            $resultStr=sprintf($textTpl,$FromUserName,$ToUserName,$time,$msgtype,$contentStr);
-            echo $resultStr;
-            exit();
+//        }elseif(strstr($keyword, "微信登录")){
+//            $appid=env('WXAPPID');
+//            $wx_url=urlencode("http://nichousha.xyz/send/wxlogin");
+//            $contentStr="https://open.weixin.qq.com/connect/oauth2/authorize?appid=$appid&redirect_uri=$wx_url&response_type=code&scope=snsapi_userinfo&state=liubin980211#wechat_redirect";
+//            $resultStr=sprintf($textTpl,$FromUserName,$ToUserName,$time,$msgtype,$contentStr);
+//            echo $resultStr;
+//            exit();
         }else if($keyword=="图片"){
             Wechat::Image($FromUserName,$ToUserName,$time,'image');
         }else if($keyword=="图文"){
