@@ -13,7 +13,8 @@ class UsersController extends Controller
     //登录
     public function login()
     {
-        return view('login');
+        $openid='';
+        return view('login',['openid'=>$openid]);
     }
     //登录
     public function loginDo(Request $request)

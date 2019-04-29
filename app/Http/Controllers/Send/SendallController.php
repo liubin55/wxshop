@@ -402,57 +402,49 @@ class SendallController extends Controller
 
 
 //本地随机数
-    public function random($length, $chars = '123456789') {
-        $hash = '';
-        $max = strlen($chars) - 1;
-        for($i = 0; $i < $length; $i++) {
-            $hash .= $chars[mt_rand(0, $max)];
-        }
-        return $hash;
-    }
-    public function randmun()
-    {
-//        $arr=[];
-//        for ($i=0;$i<=10000;$i++){
-//            $arr[]=$this->random(5);
-//            array_unique($arr);
+//    public function randmun()
+//    {
+////        $arr=[];
+////        for ($i=0;$i<=10000;$i++){
+////            $arr[]=$this->random(5);
+////            array_unique($arr);
+////        }
+////
+////        print_r($arr);
+//        ############### 1 生成任意不重复五位数10000个 #######################
+//        $min = 10000;
+//        $max = 100000;
+//        for($min;$min<=$max;$min++){
+//            $array[] = $min;
 //        }
+//        shuffle($array);
+//         $array = array_slice($array,0,10000);
+//         ############### 2 将生成的数存入文件中，每个文件存储1000个 #######################
+//        $num = count($array)/10;
+//         for($i = 1;$i<=10;$i++){
+//             if($i == 1){
+//                $start = 0;
+//             }else{
+//                $start = ($i-1)*1000;
+//             }
+//            file_put_contents('D:\text'.$i.'.txt',implode("\r\n",array_slice($array,$start,$num)));
+//         }
+//        ############### 3 查找一个数字在不在文件中，如果在给出在哪个文件里，不在给出提示 #######################
+//        $num = '45850'; //要查询的 五位数字
+//         $fileName = false;
+//         for($i = 1;$i<=10;$i++){
+//             $file = file_get_contents('D:\text'.$i.'.txt');
+//             if(strpos($file,$num) !== false){
+//                $fileName = 'text'.$i;
+//             }
+//         }
+//         if($fileName){
 //
-//        print_r($arr);
-        ############### 1 生成任意不重复五位数10000个 #######################
-        $min = 10000;
-        $max = 100000;
-        for($min;$min<=$max;$min++){
-            $array[] = $min;
-        }
-        shuffle($array);
-         $array = array_slice($array,0,10000);
-         ############### 2 将生成的数存入文件中，每个文件存储1000个 #######################
-        $num = count($array)/10;
-         for($i = 1;$i<=10;$i++){
-             if($i == 1){
-                $start = 0;
-             }else{
-                $start = ($i-1)*1000;
-             }
-            file_put_contents('D:\text'.$i.'.txt',implode("\r\n",array_slice($array,$start,$num)));
-         }
-        ############### 3 查找一个数字在不在文件中，如果在给出在哪个文件里，不在给出提示 #######################
-        $num = '45850'; //要查询的 五位数字
-         $fileName = false;
-         for($i = 1;$i<=10;$i++){
-             $file = file_get_contents('D:\text'.$i.'.txt');
-             if(strpos($file,$num) !== false){
-                $fileName = 'text'.$i;
-             }
-         }
-         if($fileName){
-
-            echo '存在<br>';
-            echo $fileName.'.txt';
-         }else{
-             echo '不存在';
-         }
-    }
+//            echo '存在<br>';
+//            echo $fileName.'.txt';
+//         }else{
+//             echo '不存在';
+//         }
+//    }
 
 }

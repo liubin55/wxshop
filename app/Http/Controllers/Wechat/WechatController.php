@@ -534,33 +534,34 @@ class WechatController extends Controller
                 </xml>";
         $type=$postObj->MsgType;
         $arr=[];
-        //文本存文件
-        if($type=='text'){
-            $arr[]=[
-                'openid'=>$FromUserName,
-                'content'=>$keyword,
-                 'time'=>$time,
-            ];
-            $arr=json_encode($arr,JSON_UNESCAPED_UNICODE);
-            $filename=public_path()."/recode/".date("Ymd")."/recode.php";
-            file_put_contents($filename,$arr,FILE_APPEND);
-            chown($filename,0777);
-        }
-        if($type=='image'){
-            $picurl=$postObj->PicUrl;
-            $img=file_get_contents($picurl);
-            $file=public_path()."/wx/".date("Ymd").'/'.time().'.jpg';
-            $res=file_put_contents($file,$img);
-            chown($file,0777);
-            if($res){
-                $contentStr="存储成功";//回复的内容
-            }else{
-                $contentStr="存储失败";//回复的内容
-            }
-            $resultStr=sprintf($textTpl,$FromUserName,$ToUserName,$time,$msgtype,$contentStr);
-            echo $resultStr;
-            exit();
-        }
+//        //文本存文件
+//        if($type=='text'){
+//            $arr[]=[
+//                'openid'=>$FromUserName,
+//                'content'=>$keyword,
+//                 'time'=>$time,
+//            ];
+//            $arr=json_encode($arr,JSON_UNESCAPED_UNICODE);
+//            $filename=public_path()."/recode/".date("Ymd")."/recode.php";
+//            file_put_contents($filename,$arr,FILE_APPEND);
+//            chown($filename,0777);
+//        }
+//        //存储图片
+//        if($type=='image'){
+//            $picurl=$postObj->PicUrl;
+//            $img=file_get_contents($picurl);
+//            $file=public_path()."/wx/".date("Ymd").'/'.time().'.jpg';
+//            $res=file_put_contents($file,$img);
+//            chown($file,0777);
+//            if($res){
+//                $contentStr="存储成功";//回复的内容
+//            }else{
+//                $contentStr="存储失败";//回复的内容
+//            }
+//            $resultStr=sprintf($textTpl,$FromUserName,$ToUserName,$time,$msgtype,$contentStr);
+//            echo $resultStr;
+//            exit();
+//        }
         //判断是否为事件
         if($postObj->MsgType=='event'){
             if($postObj->Event=='subscribe'){//，关注事件

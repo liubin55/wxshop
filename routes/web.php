@@ -129,6 +129,15 @@ Route::prefix('send')->group(function (){
     route::get('randmun','Send\SendallController@randmun');
 });
 
+//扫码登录
+Route::prefix('qrcode')->group(function (){
+   route::any('createcode','Qrcode\QrcodeController@createcode');
+    route::any('wxlogin/{id?}','Qrcode\QrcodeController@wxlogin');
+    route::any('wxloginDo','Qrcode\QrcodeController@wxloginDo');
+    route::any('status/{id?}','Qrcode\QrcodeController@status');
+    route::any('login','Qrcode\QrcodeController@login');
+});
+
 //模拟测试
 Route::prefix("kaoshi")->group(function (){
    route::any('token','Kaoshi\KaoshiController@check');
